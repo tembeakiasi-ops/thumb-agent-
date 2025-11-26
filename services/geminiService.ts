@@ -13,6 +13,7 @@ const getApiKey = (): string => {
   // Check for standard process.env (safely handling case where process is undefined)
   if (typeof process !== 'undefined' && process.env) {
     if (process.env.REACT_APP_API_KEY) return process.env.REACT_APP_API_KEY;
+    if (process.env.NEXT_PUBLIC_API_KEY) return process.env.NEXT_PUBLIC_API_KEY;
     if (process.env.API_KEY) return process.env.API_KEY;
   }
   
@@ -76,7 +77,7 @@ export const generateImage = async (
 ): Promise<string> => {
   try {
     if (!apiKey) {
-      throw new Error("API Key is missing. Please check your environment variables (VITE_API_KEY or REACT_APP_API_KEY).");
+      throw new Error("API Key is missing. Set VITE_API_KEY in Vercel Env Vars and REDEPLOY.");
     }
 
     // If prompt is empty but title exists, create a basic prompt from title
