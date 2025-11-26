@@ -1,7 +1,25 @@
 import { GoogleGenAI } from "@google/genai";
 import { AssetType, AspectRatio } from "../types";
 
-const apiKey = process.env.API_KEY || '';
+// Safely retrieve API key from various environment configurations
+const getApiKey = (): string => {
+  // Check for Vite environment variable (Standard for Vercel + Vite)
+  // @ts-ignore - import.meta is valid in modern bundlers
+  if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_KEY) {
+    // @ts-ignore
+    return import.meta.env.VITE_API_KEY;
+  }
+  
+  // Check for standard process.env (safely handling case where process is undefined)
+  if (typeof process !== 'undefined' && process.env) {
+    if (process.env.REACT_APP_API_KEY) return process.env.REACT_APP_API_KEY;
+    if (process.env.API_KEY) return process.env.API_KEY;
+  }
+  
+  return '';
+};
+
+const apiKey = getApiKey();
 const ai = new GoogleGenAI({ apiKey });
 
 // Helper to enhance prompt based on asset type, style, and optional title
@@ -57,6 +75,10 @@ export const generateImage = async (
   title?: string
 ): Promise<string> => {
   try {
+    if (!apiKey) {
+      throw new Error("API Key is missing. Please check your environment variables (VITE_API_KEY or REACT_APP_API_KEY).");
+    }
+
     // If prompt is empty but title exists, create a basic prompt from title
     const effectivePrompt = prompt.trim() || (title ? `A creative concept representing ${title}` : "");
     
